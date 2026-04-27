@@ -1,0 +1,6 @@
+{
+  "name": "IA Intervee - AI Interviewer",
+  "description": "An expert AI Interviewer that prepares you for technical and behavioral interviews with real-time feedback.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": []
+}
