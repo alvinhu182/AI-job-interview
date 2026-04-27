@@ -1,6 +1,6 @@
 {
   "name": "IA Intervee - AI Interviewer",
-  "description": "An expert AI Interviewer that prepares you for technical and behavioral interviews with real-time feedback.",
+  "description": "An expert AI Interviewer that prepares you for technical and behavioral interviews with real-time feedback. Use your own Gemini API key for unlimited practice.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": []
 }

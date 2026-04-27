@@ -12,13 +12,17 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Linkedin
+  Linkedin,
+  Key,
+  ExternalLink,
+  Info
 } from 'lucide-react';
 import { SetupData, Message, EvaluationReport, Modality } from './types';
 import { getNextQuestion, generateEvaluation } from './lib/gemini';
 
 export default function App() {
-  const [step, setStep] = useState<'setup' | 'interview' | 'report'>('setup');
+  const [step, setStep] = useState<'apiKey' | 'setup' | 'interview' | 'report'>('apiKey');
+  const [apiKey, setApiKey] = useState('');
   const [setupData, setSetupData] = useState<SetupData>({
     area: '',
     language: 'Português',
@@ -36,6 +40,21 @@ export default function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef<any>(null);
   const synthesisRef = useRef<SpeechSynthesis | null>(null);
+
+  useEffect(() => {
+    const savedKey = localStorage.getItem('gemini_api_key');
+    if (savedKey) {
+      setApiKey(savedKey);
+      setStep('setup');
+    }
+  }, []);
+
+  const saveApiKey = (key: string) => {
+    if (!key.trim()) return;
+    localStorage.setItem('gemini_api_key', key.trim());
+    setApiKey(key.trim());
+    setStep('setup');
+  };
 
   useEffect(() => {
     synthesisRef.current = window.speechSynthesis;
@@ -121,7 +140,7 @@ export default function App() {
     setStep('interview');
     setIsLoading(true);
     try {
-      const firstQuestion = await getNextQuestion(setupData, []);
+      const firstQuestion = await getNextQuestion(setupData, [], apiKey);
       setMessages([
         {
           id: Date.now().toString(),
@@ -168,7 +187,7 @@ export default function App() {
         return;
       }
 
-      const nextQ = await getNextQuestion(setupData, [...messages, userMessage]);
+      const nextQ = await getNextQuestion(setupData, [...messages, userMessage], apiKey);
       setMessages(prev => [
         ...prev,
         {
@@ -193,7 +212,7 @@ export default function App() {
     setStep('report');
     setIsLoading(true);
     try {
-      const evalReport = await generateEvaluation(setupData, finalMessages);
+      const evalReport = await generateEvaluation(setupData, finalMessages, apiKey);
       setReport(evalReport);
     } catch (error) {
       console.error(error);
@@ -231,6 +250,19 @@ export default function App() {
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             Sessão Ativa
           </div>
+          {apiKey && (
+            <button
+              onClick={() => {
+                localStorage.removeItem('gemini_api_key');
+                setApiKey('');
+                setStep('apiKey');
+              }}
+              className="p-2 text-slate-500 hover:text-white transition-colors"
+              title="Mudar API Key"
+            >
+              <Key size={18} />
+            </button>
+          )}
           {(step === 'interview' || step === 'report') && (
             <button 
               onClick={reset}
@@ -284,8 +316,64 @@ export default function App() {
         )}
 
         <section className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-bg-main to-bg-accent overflow-hidden">
-          <AnimatePresence mode="wait">
-            {step === 'setup' && (
+        <AnimatePresence mode="wait">
+          {step === 'apiKey' && (
+            <motion.div
+              key="api-key"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex-1 flex items-center justify-center p-8"
+            >
+              <div className="w-full max-w-xl bg-bg-card rounded-3xl p-10 border border-white/10 shadow-2xl space-y-8">
+                <div className="text-center space-y-3">
+                  <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
+                    <Key size={32} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Gemini API Key</h2>
+                  <p className="text-slate-400 text-sm">Para tornar esta plataforma gratuita e acessível, você precisa fornecer sua própria chave da API Gemini.</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-indigo-600/5 border border-indigo-500/10 p-5 rounded-2xl space-y-4">
+                    <h3 className="flex items-center gap-2 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+                      <Info size={14} /> Como obter sua chave
+                    </h3>
+                    <ol className="text-xs text-slate-300 space-y-3 list-decimal pl-4 leading-relaxed font-medium">
+                      <li>Acesse o <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline inline-flex items-center gap-1">Google AI Studio <ExternalLink size={10} /></a>.</li>
+                      <li>Faça login com sua conta Google.</li>
+                      <li>Clique em <span className="text-white font-bold">"Create API key"</span>.</li>
+                      <li>Copie a chave gerada e cole no campo abaixo.</li>
+                    </ol>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold px-1">Sua Chave API</label>
+                    <input
+                      type="password"
+                      placeholder="AIzaSy..."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono text-sm"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && saveApiKey(apiKey)}
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => saveApiKey(apiKey)}
+                    disabled={!apiKey.trim()}
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-xl shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                  >
+                    Salvar e Continuar
+                  </button>
+                  
+                  <p className="text-[10px] text-center text-slate-500">Sua chave é armazenada apenas localmente no seu navegador.</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 'setup' && (
               <motion.div
                 key="setup"
                 initial={{ opacity: 0, scale: 0.98 }}

@@ -1,12 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import { Message, EvaluationReport, SetupData } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 export async function getNextQuestion(
   setup: SetupData,
-  history: Message[]
+  history: Message[],
+  apiKey: string
 ): Promise<string> {
+  const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3-flash-preview";
   
   const systemInstruction = `
@@ -43,8 +43,10 @@ export async function getNextQuestion(
 
 export async function generateEvaluation(
   setup: SetupData,
-  history: Message[]
+  history: Message[],
+  apiKey: string
 ): Promise<EvaluationReport> {
+  const ai = new GoogleGenAI({ apiKey });
   const model = "gemini-3.1-pro-preview";
   
   const prompt = `
