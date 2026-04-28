@@ -220,7 +220,12 @@ export default function App() {
       setReport(evalReport);
     } catch (err: any) {
       console.error(err);
-      setError(err?.message || "Ocorreu um erro ao gerar sua avaliação. Verifique sua chave API ou conexão.");
+      const msg = err?.message || "";
+      if (msg.includes("429") || msg.toLowerCase().includes("quota")) {
+        setError("Limite de uso atingido. Por favor, aguarde cerca de 1 minuto e clique em 'Tentar Novamente'. Isso acontece devido às limitações da conta gratuita do Gemini.");
+      } else {
+        setError("Ocorreu um erro ao gerar sua avaliação. Verifique sua chave API ou conexão.");
+      }
     } finally {
       setIsLoading(false);
     }
