@@ -7,7 +7,7 @@ export async function getNextQuestion(
   apiKey: string
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-3-flash-preview";
+  const model = "gemini-1.5-flash";
   
   const systemInstruction = `
     Você é um Recrutador Sênior especializado na área de ${setup.area}.
@@ -47,7 +47,7 @@ export async function generateEvaluation(
   apiKey: string
 ): Promise<EvaluationReport> {
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-3.1-pro-preview";
+  const model = "gemini-1.5-pro";
   
   const prompt = `
     Analise a seguinte entrevista para a área de ${setup.area} conduzida em ${setup.language}.

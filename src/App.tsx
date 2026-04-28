@@ -35,6 +35,7 @@ export default function App() {
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [report, setReport] = useState<EvaluationReport | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -213,11 +214,13 @@ export default function App() {
   const handleEndInterview = async (finalMessages: Message[]) => {
     setStep('report');
     setIsLoading(true);
+    setError(null);
     try {
       const evalReport = await generateEvaluation(setupData, finalMessages, apiKey);
       setReport(evalReport);
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.message || "Ocorreu um erro ao gerar sua avaliação. Verifique sua chave API ou conexão.");
     } finally {
       setIsLoading(false);
     }
@@ -227,6 +230,7 @@ export default function App() {
     setStep('setup');
     setMessages([]);
     setReport(null);
+    setError(null);
     setQuestionCount(0);
     setSetupData({
       area: '',
@@ -679,6 +683,30 @@ Simulado com a IA Intervee. Pratique você também!
                     <div className="text-center space-y-2">
                       <h3 className="text-2xl font-bold text-white">Analisando Desempenho</h3>
                       <p className="text-slate-500 text-sm max-w-xs mx-auto">Nossas redes neurais estão gerando um feedback técnico personalizado para você.</p>
+                    </div>
+                  </div>
+                ) : error ? (
+                  <div className="h-full flex flex-col items-center justify-center space-y-8 py-20 text-center">
+                    <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center text-red-500">
+                      <AlertCircle size={40} />
+                    </div>
+                    <div className="space-y-4 max-w-md mx-auto px-4">
+                      <h3 className="text-2xl font-bold text-white">Ops! Algo deu errado</h3>
+                      <p className="text-slate-400 text-sm leading-relaxed">{error}</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                      <button
+                        onClick={() => handleEndInterview(messages)}
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20"
+                      >
+                        Tentar Novamente
+                      </button>
+                      <button
+                        onClick={reset}
+                        className="flex-1 bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all border border-white/5"
+                      >
+                        Voltar ao Início
+                      </button>
                     </div>
                   </div>
                 ) : report && (
