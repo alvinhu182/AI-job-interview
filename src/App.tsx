@@ -142,6 +142,7 @@ export default function App() {
     if (!setupData.area) return;
     setStep('interview');
     setIsLoading(true);
+    setError(null);
     try {
       const firstQuestion = await getNextQuestion(setupData, [], apiKey);
       setMessages([
@@ -156,8 +157,15 @@ export default function App() {
       if (setupData.modality === 'Voz') {
         speak(firstQuestion);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error(err);
+      const msg = err?.message || "";
+      if (msg.includes("429") || msg.toLowerCase().includes("quota")) {
+        alert("Limite de uso atingido. O Gemini tem restrições na conta gratuita. Aguarde um minuto e tente novamente.");
+      } else {
+        alert("Erro ao iniciar entrevista. Verifique sua chave API.");
+      }
+      setStep('setup');
     } finally {
       setIsLoading(false);
     }
@@ -204,8 +212,14 @@ export default function App() {
       if (setupData.modality === 'Voz') {
         speak(nextQ);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error(err);
+      const msg = err?.message || "";
+      if (msg.includes("429") || msg.toLowerCase().includes("quota")) {
+        alert("Limite de uso do Gemini atingido. Aguarde um minuto antes da próxima mensagem.");
+      } else {
+        alert("Erro ao gerar resposta da IA. Verifique sua conexão ou chave API.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -563,6 +577,9 @@ Simulado com a IA Intervee. Pratique você também!
                             <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
                             <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
                           </div>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2 ml-14 animate-pulse">
+                            Processando... (Pode levar um momento se a demanda estiver alta)
+                          </p>
                         </div>
                       )}
                       <div ref={messagesEndRef} />
@@ -627,7 +644,7 @@ Simulado com a IA Intervee. Pratique você também!
 
                     <div className="text-center space-y-4 max-w-md">
                       <h3 className="text-2xl font-bold text-white uppercase tracking-widest">
-                        {isRecording ? 'Ouvindo você...' : isSpeaking ? 'Recrutador Falando...' : isLoading ? 'IA Processando...' : 'Toque para responder'}
+                        {isRecording ? 'Ouvindo você...' : isSpeaking ? 'Recrutador Falando...' : isLoading ? 'IA Processando... (Aguarde)' : 'Toque para responder'}
                       </h3>
                       {voiceTranscript && (
                         <div className="bg-white/5 border border-white/10 p-4 rounded-2xl max-h-32 overflow-y-auto w-full mb-4">
@@ -687,7 +704,7 @@ Simulado com a IA Intervee. Pratique você também!
                     </div>
                     <div className="text-center space-y-2">
                       <h3 className="text-2xl font-bold text-white">Analisando Desempenho</h3>
-                      <p className="text-slate-500 text-sm max-w-xs mx-auto">Nossas redes neurais estão gerando um feedback técnico personalizado para você.</p>
+                      <p className="text-slate-500 text-sm max-w-sm mx-auto">Nossas redes neurais estão gerando um feedback técnico personalizado. Por favor, aguarde, isso pode levar até 1-2 minutos se o sistema estiver congestionado.</p>
                     </div>
                   </div>
                 ) : error ? (
