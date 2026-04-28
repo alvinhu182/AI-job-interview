@@ -1,20 +1,21 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# IA Intervee - AI Interviewer
 
-# Run and deploy your AI Studio app
+Simulador de entrevistas de emprego utilizando a API do Google Gemini.
 
-This contains everything you need to run your app locally.
+## 🚀 Como usar
+1. Faça o deploy para o Vercel.
+2. Ao abrir o app, insira sua **Gemini API Key** (obtenha em [aistudio.google.com](https://aistudio.google.com/app/apikey)).
+3. Escolha sua área de atuação e modalidade (Voz ou Texto).
+4. Pratique e receba um relatório técnico detalhado ao final.
 
-View your app in AI Studio: https://ai.studio/apps/c4742e45-ee51-4838-91f7-3e082c8c8571
+## 🛠️ Tecnologias
+- React + Vite
+- TypeScript
+- Tailwind CSS
+- Framer Motion (Animações)
+- Lucide React (Ícones)
+- Google Gemini AI (LLM)
+- Browser Speech API (Voz)
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📄 Licença
+Licença MIT
