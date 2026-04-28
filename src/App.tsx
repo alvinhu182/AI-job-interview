@@ -12,10 +12,12 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Linkedin,
+  Briefcase,
   Key,
   ExternalLink,
-  Info
+  Info,
+  Share2,
+  Copy
 } from 'lucide-react';
 import { SetupData, Message, EvaluationReport, Modality } from './types';
 import { getNextQuestion, generateEvaluation } from './lib/gemini';
@@ -233,6 +235,43 @@ export default function App() {
     });
   };
 
+  const shareResults = async () => {
+    if (!report) return;
+
+    const shareContent = `
+🎓 IA Intervee - Resultado da Entrevista
+Área: ${setupData.area}
+Score Final: ${report.nota_final}/10
+
+✅ Pontos Fortes:
+${report.pros.map(p => `- ${p}`).join('\n')}
+
+💡 Dicas de Melhoria:
+${report.contras.map(c => `- ${c}`).join('\n')}
+
+Simulado com a IA Intervee. Pratique você também!
+    `.trim();
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Meu Resultado na IA Intervee',
+          text: shareContent,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareContent);
+        alert('Resultado copiado para a área de transferência!');
+      } catch (err) {
+        console.error('Error copying:', err);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bg-main text-slate-300 font-sans flex flex-col">
       {/* Header Navigation */}
@@ -404,13 +443,13 @@ export default function App() {
 
                       <section>
                         <label className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-indigo-400 font-bold mb-3">
-                          <Linkedin size={14} /> Perfil do LinkedIn / Experiência (Opcional)
+                          <Briefcase size={14} /> Resumo Profissional (Opcional)
                         </label>
                         <textarea
-                          placeholder="Cole seu resumo do LinkedIn ou descreva sua experiência principal..."
+                          placeholder="Cole seu resumo profissional ou descreva suas experiências principais..."
                           className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-all font-medium h-24 resize-none"
-                          value={setupData.linkedin || ''}
-                          onChange={(e) => setSetupData({ ...setupData, linkedin: e.target.value })}
+                          value={setupData.professionalSummary || ''}
+                          onChange={(e) => setSetupData({ ...setupData, professionalSummary: e.target.value })}
                         />
                       </section>
 
@@ -711,13 +750,20 @@ export default function App() {
                       </section>
                     </div>
 
-                    <div className="pt-8">
+                    <div className="grid md:grid-cols-2 gap-4 pt-8">
+                      <button
+                        onClick={shareResults}
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-6 rounded-3xl font-bold text-sm uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-4 group"
+                      >
+                        <Share2 size={20} className="group-hover:scale-110 transition-transform" />
+                        Compartilhar Resultado
+                      </button>
                       <button
                         onClick={reset}
-                        className="w-full bg-white/5 hover:bg-white/10 text-white py-6 rounded-3xl font-bold text-sm uppercase tracking-[0.2em] transition-all border border-white/5 flex items-center justify-center gap-4 group"
+                        className="flex-1 bg-white/5 hover:bg-white/10 text-white py-6 rounded-3xl font-bold text-sm uppercase tracking-[0.2em] transition-all border border-white/5 flex items-center justify-center gap-4 group"
                       >
                         <RotateCcw size={20} className="group-hover:rotate-[-180deg] transition-transform duration-500" />
-                        Nova Simulação de Carreira
+                        Nova Simulação
                       </button>
                     </div>
                   </div>

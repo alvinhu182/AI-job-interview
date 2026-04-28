@@ -12,7 +12,7 @@ export async function getNextQuestion(
   const systemInstruction = `
     Você é um Recrutador Sênior especializado na área de ${setup.area}.
     Seu objetivo é conduzir uma entrevista profissional e realista.
-    ${setup.linkedin ? `O perfil do candidato (LinkedIn/Experiência) é: ${setup.linkedin}. Use essas informações para fazer perguntas personalizadas e relevantes à trajetória dele.` : ''}
+    ${setup.professionalSummary ? `O Resumo Profissional do candidato é: ${setup.professionalSummary}. Use essas informações para fazer perguntas personalizadas e relevantes à trajetória dele.` : ''}
     
     REGRAS:
     - Adote a postura de um recrutador sênior.

@@ -4,7 +4,7 @@ export interface SetupData {
   area: string;
   language: string;
   modality: Modality;
-  linkedin?: string;
+  professionalSummary?: string;
 }
 
 export interface Message {
